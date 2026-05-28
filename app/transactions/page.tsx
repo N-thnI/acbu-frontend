@@ -18,21 +18,18 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' });
 }
 
-/**
- * Activity feed page displaying a list of all transactions.
- */
-export default function ActivityPage() {
+export default function TransactionsPage() {
   const opts = useApiOpts();
-  const [transactions, setTransactions] = useState<TransactionListItem[]>([]);
+  const [items, setItems] = useState<TransactionListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useScrollRestoration('/activity', !loading);
+  useScrollRestoration('/transactions', !loading);
 
   useEffect(() => {
     let cancelled = false;
     transactionsApi.listTransactions(undefined, opts).then((data) => {
-      if (!cancelled) setTransactions(data.transactions ?? []);
+      if (!cancelled) setItems(data.transactions ?? []);
     }).catch((e) => {
       if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load');
     }).finally(() => {
@@ -45,24 +42,26 @@ export default function ActivityPage() {
     <>
       <div className="page-header">
         <div className="page-header-row">
-          <Link href="/me"><ArrowLeft className="w-5 h-5 text-primary" /></Link>
-          <h1 className="page-title">Activity</h1>
+          <Link href="/" aria-label="Back to home">
+            <ArrowLeft className="w-5 h-5 text-primary" />
+          </Link>
+          <h1 className="page-title">Transactions</h1>
         </div>
       </div>
       <PageContainer>
         {error && <p className="text-destructive text-sm mb-3">{error}</p>}
         {loading ? (
           <SkeletonList count={5} />
-        ) : transactions.length === 0 ? (
+        ) : items.length === 0 ? (
           <EmptyState
             icon={<Clock className="w-10 h-10" />}
             title="No transactions yet"
-            description="Mint, burn, and transfer history will appear here."
+            description="Your transaction history will appear here once you make your first transfer, mint, or burn."
           />
         ) : (
           <div className="space-y-2">
-            {transactions.map((t) => (
-             <Link key={t.transaction_id} href={`/transactions/${t.transaction_id}`} className="block">
+            {items.map((t) => (
+              <Link key={t.transaction_id} href={`/transactions/${t.transaction_id}`} className="block">
                 <Card className="border-border p-4 flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-foreground">
@@ -79,7 +78,7 @@ export default function ActivityPage() {
                             ? `+ ACBU ${formatAcbu(t.amount_acbu)}`
                             : t.local_currency && t.local_amount
                               ? `+ ${t.local_currency} ${formatAmount(t.local_amount)}`
-                              : '—'
+                              : '\u2014'
                           : `ACBU ${formatAcbu(t.amount_acbu)}`}
                     </p>
                     <Badge variant="outline" className="text-xs mt-1">{t.status}</Badge>
