@@ -1,37 +1,27 @@
-// AUDIT: Performance review confirmed this page uses 100% inline vector SVGs
-// and CSS placeholders. No raster <img> or <Image /> elements exist to lazy-load.
-"use client";
+'use client';
 
-import React, { useState, useEffect, useRef } from "react";
-import { PageContainer } from "@/components/layout/page-container";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { useRouter } from "next/navigation";
-import {
-  ArrowRight,
-  User,
-  Settings,
-  LogOut,
-  Eye,
-  Clock,
-  Building2,
-  Shield,
-  HelpCircle,
-  CheckCircle2,
-  Clock3,
-  XCircle,
-  AlertCircle,
-} from "lucide-react";
-import { useAuth } from "@/contexts/auth-context";
-import { useBalance } from "@/hooks/use-balance";
-import { useApiOpts } from "@/hooks/use-api";
-import { formatAmount, parseUtcDate } from "@/lib/utils";
-import * as userApi from "@/lib/api/user";
-import * as transactionsApi from "@/lib/api/transactions";
-import type { UserMe } from "@/types/api";
-import type { TransactionListItem } from "@/types/api";
-import Link from "next/link";
-import { RetryErrorBlock } from "@/components/ui/retry-error-block";
+import type { Metadata } from 'next';
+import React, { useState, useEffect, useRef } from 'react';
+import { PageContainer } from '@/components/layout/page-container';
+
+export const metadata: Metadata = {
+  title: 'My Account | ACBU',
+  description: 'Manage your ACBU account, profile, and settings.',
+};
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { useRouter } from 'next/navigation';
+import { ArrowRight, User, Settings, LogOut, Eye, Clock, Building2, Shield, HelpCircle, CheckCircle2, Clock3, XCircle, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/contexts/auth-context';
+import { useBalance } from '@/hooks/use-balance';
+import { useApiOpts } from '@/hooks/use-api';
+import { formatAmount, parseUtcDate } from '@/lib/utils';
+import * as userApi from '@/lib/api/user';
+import * as transactionsApi from '@/lib/api/transactions';
+import type { UserMe } from '@/types/api';
+import type { TransactionListItem } from '@/types/api';
+import Link from 'next/link';
+import { RetryErrorBlock } from '@/components/ui/retry-error-block';
 
 // ---------------------------------------------------------------------------
 // KYC polling constants

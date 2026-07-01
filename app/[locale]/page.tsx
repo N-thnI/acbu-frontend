@@ -218,9 +218,14 @@ export default function Home() {
     showBalance && !balanceLoading && balance != null
       ? acbuBalanceToUsd(balance, rates)
       : null;
-  const fiatUsdInfo = showBalance
-    ? sumSimulatedFiatUsd(fiatAccounts, rates)
-    : null;
+  const fiatUsdInfo = showBalance ? sumSimulatedFiatUsd(fiatAccounts, rates) : null;
+  const balanceAnnouncement = !showBalance
+    ? 'Balances hidden'
+    : balanceLoading
+      ? 'Loading balance'
+      : balance != null
+        ? `Balance updated to ACBU ${format.number(balance, { minimumFractionDigits: 0, maximumFractionDigits: 7 })}`
+        : 'Balance unavailable';
 
   return (
     <>
@@ -257,25 +262,23 @@ export default function Home() {
                 <EyeOff className="text-muted-foreground h-4 w-4 md:h-5 md:w-5" />
               )}
             </button>
-            <div className="mb-1 flex items-start gap-3 pr-12 md:gap-6 md:pr-16">
-              <div className="border-border/60 min-w-0 flex-1 border-r pr-3 md:pr-6">
-                <p className="text-muted-foreground mb-1 text-[11px] font-semibold tracking-wide uppercase md:text-xs">
-                  {t("acbu")}
-                </p>
-                <p className="text-muted-foreground mb-1 text-[10px] md:text-xs">
-                  {t("wallet_balance")}
+            <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+              {balanceAnnouncement}
+            </div>
+            <div className="flex items-start gap-3 pr-12 mb-1 md:gap-6 md:pr-16">
+              <div className="flex-1 min-w-0 border-r border-border/60 pr-3 md:pr-6">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-1 md:text-xs">
+                  {t('acbu')}
                 </p>
                 <h2 className="text-foreground text-2xl font-bold tabular-nums sm:text-3xl md:text-4xl">
                   {!showBalance
                     ? "••••••"
                     : balanceLoading
-                      ? "..."
-                      : `ACBU ${balance != null ? format.number(balance, { minimumFractionDigits: 0, maximumFractionDigits: 7 }) : "—"}`}
-                </h2>
+                      ? '...'
+                      : `ACBU ${balance != null ? format.number(balance, { minimumFractionDigits: 0, maximumFractionDigits: 7 }) : '—'}`}
+                </div>
                 {!showBalance ? (
-                  <p className="text-muted-foreground mt-1.5 text-sm tabular-nums md:text-base">
-                    ••••••
-                  </p>
+                  <p className="text-sm text-muted-foreground mt-1.5 md:text-base">••••••</p>
                 ) : balanceLoading || ratesLoading ? (
                   <p className="text-muted-foreground mt-1.5 text-sm md:text-base">
                     <BalanceSkeleton variant="compact" />
@@ -313,11 +316,8 @@ export default function Home() {
                   ) : (
                     <>
                       <p>
-                        {t("approx_usd")}{" "}
-                        {format.number(fiatUsdInfo?.usd ?? 0, {
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 2,
-                        })}
+                        ≈ USD{' '}
+                        {format.number(fiatUsdInfo?.usd ?? 0, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
                       </p>
                       {fiatUsdInfo?.partial && fiatAccounts.length > 0 && (
                         <p className="text-muted-foreground text-[10px] font-normal md:text-xs">
